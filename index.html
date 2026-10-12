@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07091d"><title>Bhavna AI</title>
+<style>
+:root{--cyan:#65f4ff;--pink:#c18bff;--panel:rgba(16,22,55,.8)}
+*{box-sizing:border-box}body{margin:0;color:#eef4ff;font-family:system-ui,Arial;background:radial-gradient(ellipse at 50% 5%,#25245a 0,#101332 36%,#050611 78%);min-height:100vh}
+header{text-align:center;padding:18px 12px 8px}h1{margin:0;font-size:28px;letter-spacing:2px;color:var(--cyan);text-shadow:0 0 18px #00d9ff}small{color:#b9c7ef}
+.universe{height:205px;display:grid;place-items:center;position:relative;overflow:hidden}
+.orb{width:142px;height:142px;border:2px solid #65f4ff;border-radius:50%;box-shadow:0 0 24px #25dfff, inset 0 0 28px #a44fff;display:grid;place-items:center;animation:float 4s ease-in-out infinite;position:relative;background:radial-gradient(circle at 40% 35%,#a5fcff44,#6c43ff22 55%,transparent 70%)}
+.orb:before,.orb:after{content:"";position:absolute;border:1px solid #b58cff;border-radius:50%;width:185px;height:62px;transform:rotate(-25deg);box-shadow:0 0 10px #7e66ff}
+.orb:after{transform:rotate(55deg);width:170px;border-color:#5af5ff}
+.face{font-size:70px;filter:drop-shadow(0 0 15px #68f5ff);z-index:1}
+@keyframes float{50%{transform:translateY(-8px) scale(1.03)}}
+.status{color:#82faff;text-align:center;font-size:12px;margin-top:-2px}
+.wrap{padding:12px;max-width:680px;margin:auto}.card{background:var(--panel);border:1px solid #5e6bba66;border-radius:18px;padding:13px;box-shadow:0 0 25px #05051d}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.controls input,.controls select,textarea{background:#0b1030;color:white;border:1px solid #5c6ac4;border-radius:10px;padding:11px;min-width:0}
+.controls input{flex:1;width:100%}.btn{border:1px solid #69efff;background:#13254b;color:#eaffff;padding:11px 13px;border-radius:12px;font-weight:600}.btn.primary{background:linear-gradient(100deg,#147eaa,#713fba);border:0}
+#chat{height:210px;overflow:auto;display:flex;flex-direction:column;gap:9px;margin:10px 0}.msg{padding:10px 12px;border-radius:13px;max-width:92%;white-space:pre-wrap;line-height:1.4}.ai{align-self:flex-start;background:#17204b;border:1px solid #5362a0}.user{align-self:flex-end;background:#243c62;border:1px solid #3e9ab4}
+textarea{width:100%;resize:vertical;min-height:50px}.hint{font-size:12px;color:#b7c4e6;line-height:1.5}.label{font-size:13px;color:#b7eaff}
+</style></head>
+<body>
+<header><h1>BHAVNA AI</h1><small>तुम्हारी डिजिटल AI साथी · Holographic Universe</small></header>
+<div class="universe"><div class="orb"><div class="face">👩🏻‍🚀</div></div></div>
+<div class="status" id="status">● तैयार हूँ — मुझसे बात करो</div>
+<main class="wrap">
+<section class="card">
+<div class="label">AI मोड</div>
+<div class="controls"><select id="mode"><option value="cloud">Cloud AI (Gemini API)</option><option value="local">Local basic mode (offline)</option></select><button class="btn" id="voiceToggle">🔊 आवाज़: चालू</button></div>
+<div class="label">Cloud API key (वैकल्पिक)</div>
+<div class="controls"><input id="apiKey" type="password" placeholder="Gemini API key यहाँ डालें"><button class="btn" id="saveKey">सेव</button></div>
+<p class="hint">API key केवल इसी ऐप के फोन स्टोरेज में सेव होती है। शेयर न करें। Cloud मोड में संदेश बाहरी AI सेवा को भेजे जाते हैं।</p>
+<div id="chat"><div class="msg ai">नमस्ते! मैं भावना हूँ। नीचे अपना सवाल लिखो या 🎙️ बटन से बोलो।</div></div>
+<textarea id="prompt" placeholder="यहाँ हिंदी या Hinglish में लिखो…"></textarea>
+<div class="controls"><button class="btn" id="mic">🎙️ बोलो</button><button class="btn primary" id="send">भेजो ➤</button><button class="btn" id="clear">चैट साफ़</button></div>
+<p class="hint">नोट: Local मोड साधारण ऑफलाइन जवाब देता है; असली बड़ा लोकल AI मॉडल इसमें शामिल नहीं है। आवाज़ उपलब्धता Android के speech engine और भाषा सपोर्ट पर निर्भर है।</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let voiceOn=true, history=[];
+try{$('apiKey').value=localStorage.getItem('bhavna_api_key')||''}catch(e){}
+$('saveKey').onclick=()=>{try{localStorage.setItem('bhavna_api_key',$('apiKey').value);$('status').textContent='● API key इस डिवाइस पर सेव की गई'}catch(e){$('status').textContent='सेव नहीं हो पाई'}};
+$('voiceToggle').onclick=()=>{voiceOn=!voiceOn;$('voiceToggle').textContent=voiceOn?'🔊 आवाज़: चालू':'🔇 आवाज़: बंद'};
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight}
+function speak(text){if(!voiceOn||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='hi-IN';u.rate=0.95;let vs=speechSynthesis.getVoices();let v=vs.find(x=>/hi-IN|Hindi/i.test(x.lang+' '+x.name));if(v)u.voice=v;speechSynthesis.speak(u)}
+function localAnswer(q){let s=q.toLowerCase();if(/नमस्ते|hello|hi|हेलो/.test(s))return 'नमस्ते! मैं भावना हूँ। बताओ, मैं तुम्हारी क्या मदद करूँ?';if(/तुम कौन|तुम्हारा नाम|who are you/.test(s))return 'मेरा नाम भावना AI है। मैं तुम्हारी डिजिटल सहायक हूँ।';if(/समय|date|तारीख/.test(s))return 'फोन की तारीख और समय देखो। ऑफलाइन मोड में मेरे पास लाइव समय की पुष्टि नहीं है।';if(/मदद|help/.test(s))return 'मैं सवालों के जवाब, हिंदी लिखने और सामान्य सुझावों में मदद कर सकती हूँ। बेहतर जवाबों के लिए Cloud मोड में API key जोड़ो।';return 'अभी मैं Local basic mode में हूँ, इसलिए मेरे ऑफलाइन जवाब सीमित हैं। ज्यादा स्मार्ट जवाब के लिए Cloud AI चुनकर Gemini API key जोड़ो, या इंटरनेट के बिना लोकल मॉडल अलग से इंस्टॉल करना होगा।';}
+async function send(){let q=$('prompt').value.trim();if(!q)return;$('prompt').value='';add(q,'user');history.push({role:'user',parts:[{text:q}]});$('status').textContent='● सोच रही हूँ…';$('send').disabled=true;let answer='';
+try{if($('mode').value==='local'){answer=localAnswer(q)}else{let key=$('apiKey').value.trim();if(!key)throw Error('पहले Cloud API key डालो, या Local basic mode चुनो।');let r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:'तुम भावना नाम की सहायक हो। हिंदी या Hinglish में दोस्ताना, स्पष्ट और सुरक्षित जवाब दो। खुद को असली इंसान मत बताओ।'}]},contents:history.slice(-12),generationConfig:{temperature:0.7,maxOutputTokens:800}})});let data=await r.json();if(!r.ok)throw Error(data.error?.message||'Cloud API अनुरोध सफल नहीं हुआ।');answer=data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'जवाब नहीं मिला।';history.push({role:'model',parts:[{text:answer}]});}}
+catch(e){answer='समस्या: '+e.message;}add(answer,'ai');speak(answer);$('status').textContent='● तैयार हूँ';$('send').disabled=false}
+$('send').onclick=send;$('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+$('clear').onclick=()=>{$('chat').innerHTML='';history=[];add('चैट साफ़ हो गई। नया सवाल पूछो।','ai')};
+$('mic').onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$('status').textContent='इस ऐप में बोलकर लिखने की सुविधा उपलब्ध नहीं है। कीबोर्ड का माइक्रोफोन इस्तेमाल करो।';return}let r=new SR();r.lang='hi-IN';r.interimResults=false;r.onstart=()=> $('status').textContent='● सुन रही हूँ…';r.onresult=e=>{$('prompt').value=e.results[0][0].transcript;$('status').textContent='● आपकी बात लिख दी गई'};r.onerror=()=> $('status').textContent='माइक की अनुमति या भाषा सेटिंग जाँचें';r.start()};
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
+</script></body></html>
